@@ -1,5 +1,6 @@
 // Update this list to match the files in images/
 const IMAGES = [
+  'WC-Art-Page-00.jpg',
   'WC-Art-Page-01.jpg',
   'WC-Art-Page-02.jpg',
   'WC-Art-Page-03.jpg',
@@ -16,14 +17,27 @@ const container = document.getElementById('scroll-container');
 // producing an infinite loop with no visible seam.
 const SET_COUNT = 3;
 
+function append_img(filename) {
+  const img = document.createElement('img');
+  img.className = 'art-image';
+  img.src = `images/${filename}`;
+  img.draggable = false;
+  container.appendChild(img);
+}
+
 function buildImages() {
   for (let set = 0; set < SET_COUNT; set++) {
+    let index = 0;
     for (const filename of IMAGES) {
-      const img = document.createElement('img');
-      img.className = 'art-image';
-      img.src = `images/${filename}`;
-      img.draggable = false;
-      container.appendChild(img);
+      index++;
+      if (index === 1) continue;
+      append_img(IMAGES[0]);
+      append_img(filename);
+      // const img = document.createElement('img');
+      // img.className = 'art-image';
+      // img.src = `images/${filename}`;
+      // img.draggable = false;
+      // container.appendChild(img);
     }
   }
 }
