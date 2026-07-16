@@ -52,6 +52,7 @@ function init() {
   imagesReady().then(() => {
     measureSetHeight();
     container.scrollTop = setHeight;
+    requestAnimationFrame(autoScrollTick);
   });
 }
 
@@ -77,5 +78,44 @@ window.addEventListener('resize', () => {
   measureSetHeight();
   container.scrollTop = setHeight * ratio;
 });
+
+// Constant, slow autoplay. Pauses while the visitor is actively
+// scrolling/touching/dragging and resumes a moment after they stop.
+const AUTO_SCROLL_SPEED = 30; // pixels per second
+const RESUME_DELAY = 1500; // ms of inactivity before autoplay resumes
+
+let autoScrollEnabled = true;
+let lastFrameTime = null;
+let resumeTimer = null;
+// container.scrollTop only stores whole pixels, so sub-pixel deltas
+// (30px/s at 60fps is 0.5px/frame) would otherwise round away to zero
+// every frame. Carry the lost fraction here instead of reading it back
+// from scrollTop.
+let scrollRemainder = 0;
+
+function pauseAutoScroll() {
+  autoScrollEnabled = false;
+  lastFrameTime = null;
+  clearTimeout(resumeTimer);
+  resumeTimer = setTimeout(() => {
+    autoScrollEnabled = true;
+  }, RESUME_DELAY);
+}
+
+['wheel', 'touchstart', 'pointerdown'].forEach((eventName) =>
+  container.addEventListener(eventName, pauseAutoScroll, { passive: true }),
+);
+
+function autoScrollTick(timestamp) {
+  if (autoScrollEnabled && lastFrameTime !== null) {
+    const deltaSeconds = (timestamp - lastFrameTime) / 1000;
+    const distance = AUTO_SCROLL_SPEED * deltaSeconds + scrollRemainder;
+    const wholePixels = Math.trunc(distance);
+    scrollRemainder = distance - wholePixels;
+    if (wholePixels !== 0) container.scrollTop += wholePixels;
+  }
+  lastFrameTime = autoScrollEnabled ? timestamp : null;
+  requestAnimationFrame(autoScrollTick);
+}
 
 init();
