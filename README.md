@@ -15,4 +15,6 @@ add qr code image ./images/qrcode_wcartiprc.com.jpg to show in lower right corne
 claude prompt:
 create plain html / css / javascript app that scrolls image files in folder images vertically in infinte scrolling effect
 
+https://wcartiprc.com/
+
 ```
